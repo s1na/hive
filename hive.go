@@ -24,6 +24,7 @@ func main() {
 		dockerNoCache         = flag.String("docker.nocache", "", "Regular `expression` selecting the docker images to forcibly rebuild.")
 		dockerPull            = flag.Bool("docker.pull", false, "Refresh base images when building images.")
 		dockerOutput          = flag.Bool("docker.output", false, "Relay all docker output to stderr.")
+		dockerPlatform        = flag.String("docker.platform", "", "Platform to use when building images (e.g. linux/amd64, linux/arm64).")
 		simPattern            = flag.String("sim", "", "Regular `expression` selecting the simulators to run.")
 		simTestPattern        = flag.String("sim.limit", "", "Regular `expression` selecting tests/suites (interpreted by simulators).")
 		simParallelism        = flag.Int("sim.parallelism", 1, "Max `number` of parallel clients/containers (interpreted by simulators).")
@@ -79,6 +80,7 @@ func main() {
 		Inventory:           inv,
 		PullEnabled:         *dockerPull,
 		UseCredentialHelper: *useCredHelper,
+		Platform:            *dockerPlatform,
 	}
 	if *dockerNoCache != "" {
 		re, err := regexp.Compile(*dockerNoCache)

@@ -29,6 +29,9 @@ type Config struct {
 
 	// This tells the docker client whether to authenticate requests with credential helper
 	UseCredentialHelper bool
+
+	// Platform is the platform to use when building images.
+	Platform string
 }
 
 func Connect(dockerEndpoint string, cfg *Config) (*Builder, *ContainerBackend, error) {

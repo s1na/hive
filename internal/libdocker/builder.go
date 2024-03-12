@@ -114,6 +114,9 @@ func (b *Builder) buildConfig(ctx context.Context, name string) docker.BuildImag
 	if b.config.BuildOutput != nil {
 		opts.OutputStream = b.config.BuildOutput
 	}
+	if b.config.Platform != "" {
+		opts.Platform = b.config.Platform
+	}
 	return opts
 }
 
