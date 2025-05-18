@@ -60,6 +60,7 @@ func main() {
 		useCredHelper         = flag.Bool("docker.cred-helper", false, "configure docker authentication using locally-configured credential helper")
 
 		clientsFile = flag.String("client-file", "", `YAML `+"`file`"+` containing client configurations.`)
+		clientImage = flag.String("client-image", "", "Docker `image` to use for the client. If not set, the client will be built from source.")
 
 		clients = flag.String("client", "go-ethereum", "Comma separated `list` of clients to use. Client names in the list may be given as\n"+
 			"just the client name, or a client_branch specifier. If a branch name is supplied,\n"+
@@ -180,7 +181,7 @@ func main() {
 	}
 
 	// Build clients and simulators.
-	if err := runner.Build(ctx, clientList, simList, simBuildArgs); err != nil {
+	if err := runner.Build(ctx, clientList, clientImage, simList, simBuildArgs); err != nil {
 		fatal(err)
 	}
 	if *simDevMode {

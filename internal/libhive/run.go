@@ -41,18 +41,31 @@ func NewRunner(inv Inventory, b Builder, cb ContainerBackend) *Runner {
 }
 
 // Build builds client and simulator images.
-func (r *Runner) Build(ctx context.Context, clientList []ClientDesignator, simList []string, simBuildArgs map[string]string) error {
+func (r *Runner) Build(ctx context.Context, clientList []ClientDesignator, clientImage *string, simList []string, simBuildArgs map[string]string) error {
 	if err := r.container.Build(ctx, r.builder); err != nil {
 		return err
 	}
-	if err := r.buildClients(ctx, clientList); err != nil {
+	if err := r.buildClients(ctx, clientList, clientImage); err != nil {
 		return err
 	}
 	return r.buildSimulators(ctx, simList, simBuildArgs)
 }
 
 // buildClients builds client images.
-func (r *Runner) buildClients(ctx context.Context, clientList []ClientDesignator) error {
+func (r *Runner) buildClients(ctx context.Context, clientList []ClientDesignator, clientImage *string) error {
+	// No need to build if client image specified.
+	if clientImage != nil {
+		r.clientDefs = append(r.clientDefs, &ClientDefinition{
+			Name:    "Monad",
+			Version: "0.0.0",
+			Image:   *clientImage,
+			Running: true,
+			Meta: ClientMetadata{
+				Roles: []string{"eth1"},
+			},
+		})
+		return nil
+	}
 	if len(clientList) == 0 {
 		return errors.New("client list is empty, cannot simulate")
 	}

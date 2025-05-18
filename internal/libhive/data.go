@@ -84,6 +84,7 @@ type ClientDefinition struct {
 	Name    string         `json:"name"`
 	Version string         `json:"version"`
 	Image   string         `json:"-"` // not exposed via API
+	Running bool           `json:"running"`
 	Meta    ClientMetadata `json:"meta"`
 }
 

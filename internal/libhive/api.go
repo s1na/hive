@@ -203,6 +203,8 @@ func (api *simAPI) startClient(w http.ResponseWriter, r *http.Request) {
 		serveError(w, err, http.StatusBadRequest)
 		return
 	}
+	fmt.Printf("Client deffff: %v\n", clientDef)
+	fmt.Printf("Client config: %v\n", clientConfig)
 	// Get the network names, if any, for the container to be connected to at start.
 	networks, err := api.checkClientNetworks(&clientConfig, suiteID)
 	if err != nil {
@@ -210,6 +212,7 @@ func (api *simAPI) startClient(w http.ResponseWriter, r *http.Request) {
 		serveError(w, err, http.StatusBadRequest)
 		return
 	}
+	fmt.Printf("Client networks: %v\n", networks)
 
 	files := make(map[string]*multipart.FileHeader)
 	for key, fheaders := range r.MultipartForm.File {
@@ -246,14 +249,17 @@ func (api *simAPI) startClient(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(r.Context(), timeout)
 	defer cancel()
 
-	// Create the client container.
+	var containerID string
 	options := ContainerOptions{Env: env, Files: files}
-	containerID, err := api.backend.CreateContainer(ctx, clientDef.Image, options)
-	if err != nil {
-		slog.Error("API: client container create failed", "client", clientDef.Name, "error", err)
-		err := fmt.Errorf("client container create failed (%v)", err)
-		serveError(w, err, http.StatusInternalServerError)
-		return
+	if !clientDef.Running {
+		// Create the client container.
+		containerID, err = api.backend.CreateContainer(ctx, clientDef.Image, options)
+		if err != nil {
+			slog.Error("API: client container create failed", "client", clientDef.Name, "error", err)
+			err := fmt.Errorf("client container create failed (%v)", err)
+			serveError(w, err, http.StatusInternalServerError)
+			return
+		}
 	}
 
 	// Set the log file. We need the container ID for this,
@@ -271,7 +277,7 @@ func (api *simAPI) startClient(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// by default: check the eth1 port
-	options.CheckLive = 8545
+	options.CheckLive = 8080
 	if portStr := env["HIVE_CHECK_LIVE_PORT"]; portStr != "" {
 		v, err := strconv.ParseUint(portStr, 10, 16)
 		if err != nil {

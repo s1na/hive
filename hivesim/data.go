@@ -40,6 +40,7 @@ type ClientDefinition struct {
 	Name    string         `json:"name"`
 	Version string         `json:"version"`
 	Meta    ClientMetadata `json:"meta"`
+	Running bool           `json:"running"`
 }
 
 // HasRole reports whether the client has the given role.
