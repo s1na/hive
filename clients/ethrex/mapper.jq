@@ -28,30 +28,14 @@ def to_bool:
   end
 ;
 
-# Pads storage keys to 32 bytes.
-def pad_storage_keys:
-  .alloc |= (if . == null then . else with_entries(
-    .value.storage |= (if . == null then . else with_entries(
-      .key |= (if . == null then . else
-                 if startswith("0x") then
-                   "0x" + (.[2:] | if length < 64 then ("0" * (64 - length)) + . else . end)
-                 else
-                   "0x" + (if length < 64 then ("0" * (64 - length)) + . else . end)
-                 end
-               end)
-    ) end)
-  ) end)
-;
-
 # Replace config in input.
 . + {
   "config": {
     "ethash": (if env.HIVE_CLIQUE_PERIOD then null else {} end),
     "clique": (if env.HIVE_CLIQUE_PERIOD == null then null else {
       "period": env.HIVE_CLIQUE_PERIOD|to_int,
-      "epoch": 30000
     } end),
-    "chainId": env.HIVE_CHAIN_ID|to_int,
+    "chainId": (if env.HIVE_CHAIN_ID == null then 1 else env.HIVE_CHAIN_ID|to_int end),
     "homesteadBlock": env.HIVE_FORK_HOMESTEAD|to_int,
     "daoForkBlock": env.HIVE_FORK_DAO_BLOCK|to_int,
     "daoForkSupport": env.HIVE_FORK_DAO_VOTE|to_bool,
@@ -68,12 +52,12 @@ def pad_storage_keys:
     "londonBlock": env.HIVE_FORK_LONDON|to_int,
     "arrowGlacierBlock": env.HIVE_FORK_ARROW_GLACIER|to_int,
     "grayGlacierBlock": env.HIVE_FORK_GRAY_GLACIER|to_int,
-    "mergeForkBlock": env.HIVE_MERGE_BLOCK_ID|to_int,
+    "mergeNetsplitBlock": env.HIVE_MERGE_BLOCK_ID|to_int,
     "terminalTotalDifficulty": env.HIVE_TERMINAL_TOTAL_DIFFICULTY|to_int,
+    "terminalTotalDifficultyPassed": env.HIVE_TERMINAL_TOTAL_DIFFICULTY_PASSED|to_bool,
     "shanghaiTime": env.HIVE_SHANGHAI_TIMESTAMP|to_int,
     "cancunTime": env.HIVE_CANCUN_TIMESTAMP|to_int,
     "pragueTime": env.HIVE_PRAGUE_TIMESTAMP|to_int,
-    "osakaTime": env.HIVE_OSAKA_TIMESTAMP|to_int,
     "blobSchedule": {
       "cancun": {
         "target": (if env.HIVE_CANCUN_BLOB_TARGET then env.HIVE_CANCUN_BLOB_TARGET|to_int else 3 end),
@@ -84,12 +68,8 @@ def pad_storage_keys:
         "target": (if env.HIVE_PRAGUE_BLOB_TARGET then env.HIVE_PRAGUE_BLOB_TARGET|to_int else 6 end),
         "max": (if env.HIVE_PRAGUE_BLOB_MAX then env.HIVE_PRAGUE_BLOB_MAX|to_int else 9 end),
         "baseFeeUpdateFraction": (if env.HIVE_PRAGUE_BLOB_BASE_FEE_UPDATE_FRACTION then env.HIVE_PRAGUE_BLOB_BASE_FEE_UPDATE_FRACTION|to_int else 5007716 end)
-      },
-      "osaka": {
-        "target": (if env.HIVE_OSAKA_BLOB_TARGET then env.HIVE_OSAKA_BLOB_TARGET|to_int else 6 end),
-        "max": (if env.HIVE_OSAKA_BLOB_MAX then env.HIVE_OSAKA_BLOB_MAX|to_int else 9 end),
-        "baseFeeUpdateFraction": (if env.HIVE_OSAKA_BLOB_BASE_FEE_UPDATE_FRACTION then env.HIVE_OSAKA_BLOB_BASE_FEE_UPDATE_FRACTION|to_int else 5007716 end)
       }
     },
-  }
-} | pad_storage_keys | remove_empty
+    "depositContractAddress": "0x00000000219ab540356cBB839Cbe05303d7705Fa"
+  }|remove_empty
+}
