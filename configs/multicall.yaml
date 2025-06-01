@@ -11,3 +11,17 @@
   build_args:
     github: NethermindEth/nethermind
     tag: master
+
+- client: reth
+  nametag: master-git
+  dockerfile: git
+  build_args:
+    github: paradigmxyz/reth
+    tag: master
+
+- client: besu
+  nametag: multicall-git
+  dockerfile: git
+  build_args:
+    github: hyperledger/besu
+    tag: master
